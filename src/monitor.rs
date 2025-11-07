@@ -15,6 +15,10 @@ impl Monitor {
         self.sys.total_memory()
     }
 
+    pub fn used_memory(&self) -> u64 {
+        self.sys.used_memory()
+    }
+
     pub fn cpu_usage(&self) -> Vec<f32> {
         self.sys.cpus()
             .iter()

@@ -18,6 +18,10 @@ fn main() {
             println!("Core {}: {:.2}%", i, usage);
         }
 
+        println!("\n=== Memory ===");
+        println!("Total: {} MB", monitor.total_memory() / 1024 / 1024);
+        println!("Used: {} MB", monitor.used_memory() / 1024 / 1024);
+
         thread::sleep(Duration::from_secs(1));
     }
 }
