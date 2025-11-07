@@ -11,12 +11,12 @@ impl Monitor {
         }
     }
 
-    pub fn processes(&self) -> Vec<(Option<&str>, f32, u64)> {
+    pub fn processes(&self) -> Vec<(String, f32, u64)> {
         self.sys.processes()
             .values()
             .map(|process| {
                 (
-                    process.name().to_str(),
+                    process.name().to_string_lossy().to_string(),
                     process.cpu_usage(),
                     process.memory(),
                 )

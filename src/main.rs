@@ -1,7 +1,7 @@
 mod monitor;
 
-use std::time::Duration;
 use std::thread;
+use std::time::Duration;
 
 use crate::monitor::Monitor;
 
@@ -29,7 +29,13 @@ fn main() {
         processes.sort_by(|a, b| b.2.cmp(&a.2));
 
         for (i, (name, cpu, memory)) in processes.iter().take(15).enumerate() {
-            println!("{:?}", name);
+            println!(
+                "{}. {} - CPU: {:.1}% | Mem: {} MB",
+                i + 1,
+                name,
+                cpu,
+                memory / 1024 / 1024 // Convert bytes to MB
+            );
         }
 
         thread::sleep(Duration::from_secs(1));
