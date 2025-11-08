@@ -15,7 +15,7 @@ fn main() {
 
         println!("\n=== CPU Usages ===");
         for (i, usage) in monitor.cpu_usage().iter().enumerate() {
-            println!("Core {}: {:.2}%", i, usage);
+            println!("Core {}: {:.2}%", i+1, usage);
         }
 
         println!("\n=== Memory ===");
@@ -24,15 +24,16 @@ fn main() {
         println!("Availible: {} MB", monitor.availible_memory() / 1024 / 1024);
 
         println!("\n=== Top Processes (by Memory) ===");
-        let mut processes = monitor.processes();
+        let mut processes = monitor.processes_grouped();
 
         processes.sort_by(|a, b| b.2.cmp(&a.2));
 
-        for (i, (name, cpu, memory)) in processes.iter().take(15).enumerate() {
+        for (i, (name, cpu, memory, count)) in processes.iter().take(15).enumerate() {
             println!(
-                "{}. {} - CPU: {:.1}% | Mem: {} MB",
+                "{}. {} ({} processes) - CPU: {:.1}% | Mem: {} MB",
                 i + 1,
                 name,
+                count,
                 cpu,
                 memory / 1024 / 1024 // Convert bytes to MB
             );

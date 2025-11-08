@@ -1,4 +1,6 @@
-use sysinfo::{Component, Disks, Networks, System, Process};
+use std::{collections::HashMap, usize};
+
+use sysinfo::{Component, Disks, Networks, Process, System};
 
 pub struct Monitor {
     sys: System,
@@ -21,6 +23,22 @@ impl Monitor {
                     process.memory(),
                 )
             })
+            .collect()
+    }
+
+    pub fn processes_grouped(&self) -> Vec<(String, f32, u64, usize)> {
+        let mut grouped: HashMap<String, (f32, u64, usize)> = HashMap::new();
+
+        for process in self.sys.processes().values() {
+            let name = process.name().to_string_lossy().to_string();
+            let entry = grouped.entry(name).or_insert((0.0, 0, 0));
+            entry.0 = process.cpu_usage();
+            entry.1 = process.memory();
+            entry.2 += 1;
+        }
+
+        grouped.into_iter()
+            .map(|(name, (cpu, mem, count))| (name, cpu, mem, count))
             .collect()
     }
 
