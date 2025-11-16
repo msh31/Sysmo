@@ -8,14 +8,14 @@ pub struct Monitor {
     gpu_metrics: Vec<GpuMetrics>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct GpuMetrics {
-    pub name: String,
-    pub temp_c: u32,
-    pub usage_percent: u32,
-    pub vram_used_mb: u64,
-    pub vram_total_mb: u64,
-    pub fan_percent: u32,
+    pub name: Option<String>,
+    pub temp_c: Option<u32>,
+    pub usage_percent: Option<u32>,
+    pub vram_used_mb: Option<u64>,
+    pub vram_total_mb: Option<u64>,
+    pub fan_percent: Option<u32>,
 }
 
 impl Monitor {
@@ -94,27 +94,42 @@ impl Monitor {
 
     pub fn refresh(&mut self) {
         self.sys.refresh_all();
-
-        let count = self.nvml.device_count().unwrap();
         self.gpu_metrics.clear();
 
-        for i in 0..count {
-            let device = self.nvml.device_by_index(i).unwrap();
+        if let Ok(nvml) = Nvml::init() {
+            let count = nvml.device_count().unwrap_or(0);
 
-            let memory = device.memory_info().unwrap();
-            let util = device.utilization_rates().unwrap();
-            let temp = device
-                .temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu)
-                .unwrap();
-            let fan = device.fan_speed(0).unwrap();
+            for i in 0..count {
+                let device = nvml.device_by_index(i).ok();
 
+                let gpu_metric = GpuMetrics {
+                    name: device.as_ref().and_then(|d| d.name().ok()),
+                    temp_c: device.as_ref().and_then(|d| {
+                        d.temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu)
+                            .ok()
+                    }),
+                    usage_percent: device
+                        .as_ref()
+                        .and_then(|d| d.utilization_rates().ok().map(|u| u.gpu)),
+                    vram_used_mb: device
+                        .as_ref()
+                        .and_then(|d| d.memory_info().ok().map(|m| m.used / 1024 / 1024)),
+                    vram_total_mb: device
+                        .as_ref()
+                        .and_then(|d| d.memory_info().ok().map(|m| m.total / 1024 / 1024)),
+                    fan_percent: device.as_ref().and_then(|d| d.fan_speed(0).ok()),
+                };
+
+                self.gpu_metrics.push(gpu_metric);
+            }
+        } else {
             self.gpu_metrics.push(GpuMetrics {
-                name: device.name().unwrap(),
-                temp_c: temp,
-                usage_percent: util.gpu,
-                vram_used_mb: memory.used / 1024 / 1024,
-                vram_total_mb: memory.total / 1024 / 1024,
-                fan_percent: fan,
+                name: None,
+                temp_c: None,
+                usage_percent: None,
+                vram_used_mb: None,
+                vram_total_mb: None,
+                fan_percent: None,
             });
         }
     }

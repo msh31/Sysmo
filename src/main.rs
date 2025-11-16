@@ -39,12 +39,12 @@ fn main() {
         for gpu in monitor.gpu_metrics() {
             println!(
                 "{} | Temp: {}°C | Usage: {}% | VRAM: {}/{} MB | Fan: {}%",
-                gpu.name,
-                gpu.temp_c,
-                gpu.usage_percent,
-                gpu.vram_used_mb,
-                gpu.vram_total_mb,
-                gpu.fan_percent
+                gpu.name.clone().unwrap_or("Unknown GPU".to_string()),
+                gpu.temp_c.unwrap_or(0),
+                gpu.usage_percent.unwrap_or(0),
+                gpu.vram_used_mb.unwrap_or(0),
+                gpu.vram_total_mb.unwrap_or(0),
+                gpu.fan_percent.unwrap_or(0)
             );
         }
 
