@@ -84,6 +84,10 @@ impl Monitor {
             .unwrap_or("<unknown>")
     }
 
+    pub fn cpu_frequencies(&self) -> Vec<u64> {
+        self.sys.cpus().iter().map(|cpu| cpu.frequency()).collect()
+    }
+
     pub fn gpu_metrics(&self) -> &Vec<GpuMetrics> {
         &self.gpu_metrics
     }

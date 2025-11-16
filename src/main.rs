@@ -20,6 +20,10 @@ fn main() {
         println!("\n=== CPU Info ===");
         println!("{}", monitor.cpu_model());
 
+        for (i, freq) in monitor.cpu_frequencies().iter().enumerate() {
+            println!("Core {}: {} MHz", i + 1, freq);
+        }
+
         println!("\n=== CPU Usages ===");
         for (i, usage) in monitor.cpu_usage().iter().enumerate() {
             println!("Core {}: {:.2}%", i + 1, usage);
