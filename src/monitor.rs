@@ -14,7 +14,8 @@ impl Monitor {
     }
 
     pub fn processes(&self) -> Vec<(String, f32, u64)> {
-        self.sys.processes()
+        self.sys
+            .processes()
             .values()
             .map(|process| {
                 (
@@ -37,7 +38,8 @@ impl Monitor {
             entry.2 += 1;
         }
 
-        grouped.into_iter()
+        grouped
+            .into_iter()
             .map(|(name, (cpu, mem, count))| (name, cpu, mem, count))
             .collect()
     }
@@ -49,16 +51,13 @@ impl Monitor {
     pub fn used_memory(&self) -> u64 {
         self.sys.used_memory()
     }
-    
-    pub fn availible_memory(&self) -> u64 {
+
+    pub fn available_memory(&self) -> u64 {
         self.sys.available_memory()
     }
 
     pub fn cpu_usage(&self) -> Vec<f32> {
-        self.sys.cpus()
-            .iter()
-            .map(|cpu| cpu.cpu_usage())
-            .collect()
+        self.sys.cpus().iter().map(|cpu| cpu.cpu_usage()).collect()
     }
 
     pub fn refresh(&mut self) {
@@ -75,12 +74,6 @@ impl Monitor {
         let distro = System::distribution_id();
         let arch = std::env::consts::ARCH;
 
-        format!(
-            "{} kernel {} • {} • {}",
-            distro,
-            kernel,
-            arch,
-            os_version
-        )
+        format!("{} kernel {} • {} • {}", distro, kernel, arch, os_version)
     }
 }

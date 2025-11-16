@@ -13,20 +13,23 @@ fn main() {
 
         print!("\x1B[2J\x1B[1;1H");
 
-        // println!("Linux kernel 5.15.0-86-generic • x86_64 • Ubuntu 22.04.3 LTS");
         println!("{}", monitor.system_info());
 
         println!("\nUptime: {:.2} Days", monitor.uptime_days());
 
         println!("\n=== CPU Usages ===");
         for (i, usage) in monitor.cpu_usage().iter().enumerate() {
-            println!("Core {}: {:.2}%", i+1, usage);
+            println!("Core {}: {:.2}%", i + 1, usage);
         }
 
         println!("\n=== Memory ===");
-        println!("Total: {} MB", monitor.total_memory() / 1024 / 1024);
-        println!("Used: {} MB", monitor.used_memory() / 1024 / 1024);
-        println!("Availible: {} MB", monitor.availible_memory() / 1024 / 1024);
+        let total = monitor.total_memory() / 1024 / 1024;
+        let available = monitor.available_memory() / 1024 / 1024;
+        let used = total - available;
+
+        println!("Total: {} MB", total);
+        println!("Used: {} MB", used);
+        println!("Available: {} MB", available);
 
         println!("\n=== Top Processes (by Memory) ===");
         let mut processes = monitor.processes_grouped();
