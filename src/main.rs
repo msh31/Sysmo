@@ -18,15 +18,12 @@ fn main() {
         println!("\nUptime: {:.2} Days", monitor.uptime_days());
 
         println!("\n=== CPU Info ===");
-        println!("{}", monitor.cpu_model());
+        let usages = monitor.cpu_usage();
+        let freqs = monitor.cpu_frequencies();
 
-        for (i, freq) in monitor.cpu_frequencies().iter().enumerate() {
-            println!("Core {}: {} MHz", i + 1, freq);
-        }
-
-        println!("\n=== CPU Usages ===");
-        for (i, usage) in monitor.cpu_usage().iter().enumerate() {
-            println!("Core {}: {:.2}%", i + 1, usage);
+        println!("{}\n", monitor.cpu_model());
+        for (i, (freq, usage)) in freqs.iter().zip(usages.iter()).enumerate() {
+            println!("Core {}: {} MHz | {:.2}%", i + 1, freq, usage);
         }
 
         println!("\n=== Memory ===");
