@@ -31,6 +31,19 @@ fn main() {
         println!("Used: {} MB", used);
         println!("Available: {} MB", available);
 
+        println!("\n=== GPU Info ===");
+        for gpu in monitor.gpu_metrics() {
+            println!(
+                "{} | Temp: {}°C | Usage: {}% | VRAM: {}/{} MB | Fan: {}%",
+                gpu.name,
+                gpu.temp_c,
+                gpu.usage_percent,
+                gpu.vram_used_mb,
+                gpu.vram_total_mb,
+                gpu.fan_percent
+            );
+        }
+
         println!("\n=== Top Processes (by Memory) ===");
         let mut processes = monitor.processes_grouped();
 

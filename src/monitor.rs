@@ -1,15 +1,31 @@
+use nvml_wrapper::Nvml;
 use std::{collections::HashMap, usize};
-
 use sysinfo::{Component, Disks, Networks, Process, System};
 
 pub struct Monitor {
     sys: System,
+    nvml: Nvml,
+    gpu_metrics: Vec<GpuMetrics>,
+}
+
+#[derive(Clone)]
+pub struct GpuMetrics {
+    pub name: String,
+    pub temp_c: u32,
+    pub usage_percent: u32,
+    pub vram_used_mb: u64,
+    pub vram_total_mb: u64,
+    pub fan_percent: u32,
 }
 
 impl Monitor {
     pub fn new() -> Self {
+        let nvml = Nvml::init().unwrap();
+
         Self {
             sys: System::new_all(),
+            nvml,
+            gpu_metrics: Vec::new(),
         }
     }
 
@@ -60,8 +76,35 @@ impl Monitor {
         self.sys.cpus().iter().map(|cpu| cpu.cpu_usage()).collect()
     }
 
+    pub fn gpu_metrics(&self) -> &Vec<GpuMetrics> {
+        &self.gpu_metrics
+    }
+
     pub fn refresh(&mut self) {
         self.sys.refresh_all();
+
+        let count = self.nvml.device_count().unwrap();
+        self.gpu_metrics.clear();
+
+        for i in 0..count {
+            let device = self.nvml.device_by_index(i).unwrap();
+
+            let memory = device.memory_info().unwrap();
+            let util = device.utilization_rates().unwrap();
+            let temp = device
+                .temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu)
+                .unwrap();
+            let fan = device.fan_speed(0).unwrap();
+
+            self.gpu_metrics.push(GpuMetrics {
+                name: device.name().unwrap(),
+                temp_c: temp,
+                usage_percent: util.gpu,
+                vram_used_mb: memory.used / 1024 / 1024,
+                vram_total_mb: memory.total / 1024 / 1024,
+                fan_percent: fan,
+            });
+        }
     }
 
     pub fn uptime_days(&self) -> f32 {
