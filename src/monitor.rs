@@ -76,6 +76,14 @@ impl Monitor {
         self.sys.cpus().iter().map(|cpu| cpu.cpu_usage()).collect()
     }
 
+    pub fn cpu_model(&self) -> &str {
+        self.sys
+            .cpus()
+            .first()
+            .map(|cpu| cpu.brand())
+            .unwrap_or("<unknown>")
+    }
+
     pub fn gpu_metrics(&self) -> &Vec<GpuMetrics> {
         &self.gpu_metrics
     }
