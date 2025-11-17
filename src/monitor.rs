@@ -1,31 +1,31 @@
-use nvml_wrapper::Nvml;
+// use nvml_wrapper::Nvml;
 use std::{collections::HashMap, usize};
 use sysinfo::{Component, Disks, Networks, Process, System};
 
 pub struct Monitor {
     sys: System,
-    nvml: Nvml,
-    gpu_metrics: Vec<GpuMetrics>,
+    // nvml: Nvml,
+    // gpu_metrics: Vec<GpuMetrics>,
 }
 
-#[derive(Clone, Debug)]
-pub struct GpuMetrics {
-    pub name: Option<String>,
-    pub temp_c: Option<u32>,
-    pub usage_percent: Option<u32>,
-    pub vram_used_mb: Option<u64>,
-    pub vram_total_mb: Option<u64>,
-    pub fan_percent: Option<u32>,
-}
+// pub struct GpuMetrics {
+//     #[derive(Clone, Debug)]
+//     pub name: Option<String>,
+//     pub temp_c: Option<u32>,
+//     pub usage_percent: Option<u32>,
+//     pub vram_used_mb: Option<u64>,
+//     pub vram_total_mb: Option<u64>,
+//     pub fan_percent: Option<u32>,
+// }
 
 impl Monitor {
     pub fn new() -> Self {
-        let nvml = Nvml::init().unwrap();
+        // let nvml = Nvml::init().unwrap();
 
         Self {
             sys: System::new_all(),
-            nvml,
-            gpu_metrics: Vec::new(),
+            // nvml,
+            // gpu_metrics: Vec::new(),
         }
     }
 
@@ -88,50 +88,50 @@ impl Monitor {
         self.sys.cpus().iter().map(|cpu| cpu.frequency()).collect()
     }
 
-    pub fn gpu_metrics(&self) -> &Vec<GpuMetrics> {
-        &self.gpu_metrics
-    }
+    // pub fn gpu_metrics(&self) -> &Vec<GpuMetrics> {
+    //     &self.gpu_metrics
+    // }
 
     pub fn refresh(&mut self) {
         self.sys.refresh_all();
-        self.gpu_metrics.clear();
-
-        if let Ok(nvml) = Nvml::init() {
-            let count = nvml.device_count().unwrap_or(0);
-
-            for i in 0..count {
-                let device = nvml.device_by_index(i).ok();
-
-                let gpu_metric = GpuMetrics {
-                    name: device.as_ref().and_then(|d| d.name().ok()),
-                    temp_c: device.as_ref().and_then(|d| {
-                        d.temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu)
-                            .ok()
-                    }),
-                    usage_percent: device
-                        .as_ref()
-                        .and_then(|d| d.utilization_rates().ok().map(|u| u.gpu)),
-                    vram_used_mb: device
-                        .as_ref()
-                        .and_then(|d| d.memory_info().ok().map(|m| m.used / 1024 / 1024)),
-                    vram_total_mb: device
-                        .as_ref()
-                        .and_then(|d| d.memory_info().ok().map(|m| m.total / 1024 / 1024)),
-                    fan_percent: device.as_ref().and_then(|d| d.fan_speed(0).ok()),
-                };
-
-                self.gpu_metrics.push(gpu_metric);
-            }
-        } else {
-            self.gpu_metrics.push(GpuMetrics {
-                name: None,
-                temp_c: None,
-                usage_percent: None,
-                vram_used_mb: None,
-                vram_total_mb: None,
-                fan_percent: None,
-            });
-        }
+        // self.gpu_metrics.clear();
+        //
+        // if let Ok(nvml) = Nvml::init() {
+        //     let count = nvml.device_count().unwrap_or(0);
+        //
+        //     for i in 0..count {
+        //         let device = nvml.device_by_index(i).ok();
+        //
+        //         let gpu_metric = GpuMetrics {
+        //             name: device.as_ref().and_then(|d| d.name().ok()),
+        //             temp_c: device.as_ref().and_then(|d| {
+        //                 d.temperature(nvml_wrapper::enum_wrappers::device::TemperatureSensor::Gpu)
+        //                     .ok()
+        //             }),
+        //             usage_percent: device
+        //                 .as_ref()
+        //                 .and_then(|d| d.utilization_rates().ok().map(|u| u.gpu)),
+        //             vram_used_mb: device
+        //                 .as_ref()
+        //                 .and_then(|d| d.memory_info().ok().map(|m| m.used / 1024 / 1024)),
+        //             vram_total_mb: device
+        //                 .as_ref()
+        //                 .and_then(|d| d.memory_info().ok().map(|m| m.total / 1024 / 1024)),
+        //             fan_percent: device.as_ref().and_then(|d| d.fan_speed(0).ok()),
+        //         };
+        //
+        //         self.gpu_metrics.push(gpu_metric);
+        //     }
+        // } else {
+        //     self.gpu_metrics.push(GpuMetrics {
+        //         name: None,
+        //         temp_c: None,
+        //         usage_percent: None,
+        //         vram_used_mb: None,
+        //         vram_total_mb: None,
+        //         fan_percent: None,
+        //     });
+        // }
     }
 
     pub fn uptime_days(&self) -> f32 {
